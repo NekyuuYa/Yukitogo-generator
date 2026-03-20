@@ -33,19 +33,31 @@ const SYSTEM_PROMPT = `
 `;
 
 app.post('/api/generate', async (req, res) => {
-  const { text } = req.body;
+  const { text, maxChars } = req.body;
 
   if (!text) {
     return res.status(400).json({ error: '输入不能为空' });
   }
 
+  // Accept a wider range than the frontend slider (100–800) to allow direct API usage.
+  const targetLength = Number.isInteger(maxChars) && maxChars >= 50 && maxChars <= 2000
+    ? maxChars
+    : null;
+
+  const messages = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    {
+      role: 'user',
+      content: targetLength
+        ? `${text}\n\n（请将输出控制在约 ${targetLength} 汉字左右，允许适当浮动。）`
+        : text,
+    },
+  ];
+
   try {
     const stream = await openai.chat.completions.create({
       model: process.env.LLM_MODEL_NAME,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: text },
-      ],
+      messages,
       stream: true,
     });
 
