@@ -253,6 +253,38 @@
             color: #bdc3c7;
         }
 
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-btn:hover:not(:disabled) {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .copy-btn.copied {
+            background-color: #27ae60;
+            color: white;
+            border-color: #27ae60;
+        }
+
         @media (max-width: 600px) {
             .container { padding: 25px 20px; }
             .header h1 { font-size: 24px; }
@@ -304,6 +336,9 @@
         </div>
 
         <div id="outputContainer" class="output-container">
+            <button id="copyBtn" class="copy-btn" onclick="copyOutput()" style="display:none;" title="复制文本">
+                <span>📋</span><span id="copyBtnText">复制</span>
+            </button>
             <div id="output"></div>
             <span id="loadingIndicator" class="loading-indicator"></span>
         </div>
@@ -325,6 +360,7 @@
             const generateBtn = document.getElementById('generateBtn');
             const errorMessage = document.getElementById('errorMessage');
             const loadingIndicator = document.getElementById('loadingIndicator');
+            const copyBtn = document.getElementById('copyBtn');
 
             if (!inputText) return;
 
@@ -335,6 +371,7 @@
             generateBtn.querySelector('span').innerText = '生成中...';
             errorMessage.style.display = 'none';
             loadingIndicator.classList.add('active');
+            copyBtn.style.display = 'none';
 
             try {
                 const response = await fetch(`${BACKEND_URL}/api/generate`, {
@@ -363,7 +400,39 @@
                 generateBtn.disabled = false;
                 generateBtn.querySelector('span').innerText = '开始生成';
                 loadingIndicator.classList.remove('active');
+                if (outputDiv.innerText.trim() !== '') {
+                    copyBtn.style.display = 'flex';
+                }
             }
+        }
+
+        async function copyOutput() {
+            const outputDiv = document.getElementById('output');
+            const copyBtn = document.getElementById('copyBtn');
+            const copyBtnText = document.getElementById('copyBtnText');
+            const text = outputDiv.innerText.trim();
+            if (!text) return;
+
+            try {
+                await navigator.clipboard.writeText(text);
+            } catch (_e) {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            }
+
+            copyBtn.classList.add('copied');
+            copyBtnText.innerText = '已复制！';
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyBtnText.innerText = '复制';
+            }, 2000);
         }
     </script>
 
