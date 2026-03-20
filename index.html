@@ -149,6 +149,7 @@
             min-height: 120px;
             padding: 24px;
             display: none;
+            overflow-wrap: anywhere;
         }
 
         .output-container.visible {
@@ -162,6 +163,7 @@
             font-size: 15px;
             color: #34495e;
             letter-spacing: 0.3px;
+            padding-top: 24px;
         }
 
         /* 简单的加载动画指示器 */
@@ -269,6 +271,7 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            z-index: 1;
         }
 
         .copy-btn:hover:not(:disabled) {
@@ -289,6 +292,8 @@
             .container { padding: 25px 20px; }
             .header h1 { font-size: 24px; }
             button { width: 100%; justify-content: center; }
+            .output-container { padding: 18px; }
+            #output { padding-top: 34px; }
         }
     </style>
 </head>

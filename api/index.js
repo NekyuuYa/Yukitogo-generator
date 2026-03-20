@@ -44,13 +44,19 @@ app.post('/api/generate', async (req, res) => {
     ? maxChars
     : null;
 
+  const userPromptParts = [
+    `核心意图：${text}`,
+    targetLength
+      ? `长度要求：请将输出控制在约 ${targetLength} 汉字左右，允许适当浮动。`
+      : '长度要求：在不冗余堆砌的前提下，写成完整且自然的一段长文本。',
+    '输出要求：仅输出重构后的文本本体，不要附加解释、标题或括号说明。',
+  ];
+
   const messages = [
     { role: 'system', content: SYSTEM_PROMPT },
     {
       role: 'user',
-      content: targetLength
-        ? `${text}\n\n（请将输出控制在约 ${targetLength} 汉字左右，允许适当浮动。）`
-        : text,
+      content: userPromptParts.join('\n'),
     },
   ];
 
